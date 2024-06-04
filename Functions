@@ -1,0 +1,55 @@
+# Count the number of "good" digit strings of length N.
+# Digits at even indices (0-indexed) are even digits 
+# Digits at odd indices are prime (2, 3, 5, 7)
+# Return result, as may be big, mod 10^9+7
+
+# For a given N we have to compute how many such number are there
+# N=1:5strings0,2,4,6,8
+# N=2:5*4strings02,03,05,07,22,23,25,27,42,43,45,47,62,63,65,67, 82, 83, 84, 87
+# N=3:5*4*5strings
+# N=4:5*4*5*4strings
+# ...
+
+# Number of even indices: floor[(N+1)/2]
+# Number of odd indices: N-floor[(N+1)/2]
+# Number of "good" digit strings given by: 5^(floor[(N+1)/2])*4^(N-floor[(N+1)/2])
+
+# Note: You don’t have to generate actual strings. Computing their number is enough.
+
+# First define the function:
+def good_num_count(N):
+    mod = 10**9+7 # Define how we want fromat of result.
+    count_even = (N+1)//2 # Index even (floor)
+    count_odd = N-count_even # Index odd
+    
+    # Cmpute the desired number of "good" digit strings
+    total_gn = (modular_exponentiation(5, count_even, mod) * modular_exponentiation(4, count_odd, mod)) % mod
+    return total_gn
+
+# As numbers can be huge I have researched and found method below to find large exponents with lower time complexity
+def modular_exponentiation (base, exponent, modulus):
+    result = 1 # Number power 0 is 1
+    # Goal is to break down problem in smaller task by taking modulus at each step, never hadle too large numbers
+    while exponent > 0:
+        # Even exponent so we can write a^b as (a^(b/2))^2
+        # Odd exponent so we can write a^b as a^(b-1)
+        if exponent % 2 == 1: 
+            result = (result*base) % modulus
+        base = (base * base) % modulus
+        exponent = exponent // 2
+    return result
+
+# Define a function to test several cases
+def tests(): 
+    # Test cases:
+    test_cases = [ (1, 5), (2, 20), (3, 100), (4, 400), (7, 40000), (10,3200000), (20, 999928327), (30,624001610)]
+
+    for i, (N, expect) in enumerate(test_cases): # Iterate over test cases
+        result = good_num_count(N)
+        if result == expect: # Correct case
+            print (f"Test case {i+1} okay")
+        else: # Wrong case
+            print (f"Test case {i+1} wrong; expect: {expect} but get {result}")
+
+# "Main":
+tests()
